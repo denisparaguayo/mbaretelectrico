@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Entregas y pagos | Mbarete Eléctrico';
+const description =
+	'Información sobre entregas, tiempos, costos y formas de pago en Asunción y Central.';
+---
+
+<BaseLayout title={title} description={description}>
+	<style>
+		.wrap {
+			max-width: 760px;
+			margin: 0 auto;
+			padding: 30px 20px 60px;
+			display: grid;
+			gap: 28px;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 28px;
+			line-height: 1.2;
+		}
+
+		h2 {
+			margin: 0 0 8px;
+			font-size: 18px;
+		}
+
+		p {
+			margin: 0;
+			color: #444;
+			line-height: 1.7;
+			font-size: 14px;
+		}
+
+		.card {
+			border: 1px solid #eee;
+			border-radius: 18px;
+			padding: 18px;
+			background: #fff;
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+		}
+
+		ul {
+			margin: 8px 0 0;
+			padding-left: 18px;
+			color: #444;
+			font-size: 14px;
+			line-height: 1.7;
+		}
+
+		.highlight {
+			font-weight: 900;
+			color: #111;
+		}
+	</style>
+
+	<div class="wrap">
+		<div>
+			<h1>Entregas y pagos</h1>
+			<p>
+				Comprá online y recibí en tu casa. Trabajamos con entregas rápidas y
+				confirmación previa por WhatsApp.
+			</p>
+		</div>
+
+		<div class="card">
+			<h2>📍 Zona de cobertura</h2>
+			<p>Realizamos entregas en Asunción y ciudades del área Central.</p>
+			<ul>
+				<li>Asunción</li>
+				<li>San Lorenzo</li>
+				<li>Luque</li>
+				<li>Fernando de la Mora</li>
+				<li>Lambaré</li>
+				<li>Y alrededores</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2>🚚 Costo de envío</h2>
+			<p>
+				Tarifa base desde <span class="highlight">Gs. 17.000</span> según zona.
+			</p>
+			<p style="margin-top:8px;">
+				🚚 <span class="highlight">Envío gratis desde Gs. 300.000</span> en Asunción
+				y Central.
+			</p>
+		</div>
+
+		<div class="card">
+			<h2>⏱ Tiempo de entrega</h2>
+			<p>
+				Entrega estimada de <span class="highlight">24 a 48 horas</span> luego de
+				confirmar el pedido.
+			</p>
+		</div>
+
+		<div class="card">
+			<h2>💳 Formas de pago</h2>
+			<ul>
+				<li>Transferencia bancaria</li>
+				<li>Giro Tigo</li>
+				<li>Pago en puerta (sujeto a confirmación)</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2>🧾 Cómo funciona el pedido</h2>
+			<ul>
+				<li>Agregás productos a tu pedido.</li>
+				<li>Lo enviás por WhatsApp.</li>
+				<li>Confirmamos disponibilidad.</li>
+				<li>Coordinamos entrega y forma de pago.</li>
+			</ul>
+		</div>
+	</div>
+</BaseLayout>

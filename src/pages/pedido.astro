@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PedidoPage from '../components/PedidoPage.tsx';
+---
+
+<BaseLayout
+	title="Pedido | Mbarete Eléctrico"
+	description="Armá tu pedido y envialo por WhatsApp.">
+	<PedidoPage client:load />
+</BaseLayout>

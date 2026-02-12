@@ -1,17 +1,63 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import ProductCard from '../components/ProductCard.astro';
 
+const productos = await getCollection('productos');
+const destacados = productos.filter((p) => p.data.destacado).slice(0, 8);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Mbarete Eléctrico | Asunción y Central">
+	<section
+		style="
+    border-radius:10px;
+    overflow:hidden;
+    background-image:url('/img/og-default.jpg');
+    background-size:cover;
+    background-position:center;
+    min-height:320px;
+    position:relative;
+  ">
+		<div
+			style="
+      position:absolute; inset:0;
+      background:rgba(53, 51, 51, 0.7);
+    ">
+		</div>
+
+		<div style="position:relative; padding:28px; max-width:740px; color:#fff;">
+			<h1 style="margin:0; font-size:34px; line-height:1.1;">
+				Materiales eléctricos y herramientas online en Asunción y Central.
+			</h1>
+			<p
+				style="margin:12px 0 18px; color:#333; font-size:16px; line-height:1.5;">
+				Comprá fácil, recibí en tu casa y pagá como prefieras.
+			</p>
+			<div style="display:flex; gap:10px; flex-wrap:wrap;">
+				<a
+					href="/catalogo"
+					style="padding:12px 14px;border-radius:12px;background:#111;color:#fff;text-decoration:none;font-weight:800;">
+					Ver catálogo
+				</a>
+				<a
+					href="/pedido"
+					style="padding:12px 14px;border-radius:12px;border:1px solid #ffffff;color:#ffffff;text-decoration:none;font-weight:800;">
+					Ver mi pedido
+				</a>
+			</div>
+
+			<div style="margin-top:14px;color:#ffffff;font-size:13px;">
+				Entrega 24–48h • Envío gratis desde Gs. 300.000 • Pago en puerta
+				disponible
+			</div>
+		</div>
+	</section>
+
+	<section style="padding:18px 0;">
+		<h2 style="margin:0 0 12px;">Lo más elegido para el hogar</h2>
+		<div
+			style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
+			{destacados.map((p) => <ProductCard p={p} />)}
+		</div>
+	</section>
+</BaseLayout>

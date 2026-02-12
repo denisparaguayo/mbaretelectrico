@@ -1,0 +1,46 @@
+---
+import AddToOrderButton from './AddToOrderButton.tsx';
+import { formatGs } from '../lib/money';
+const { p } = Astro.props;
+const href = `/p/${p.slug}`;
+---
+
+<div
+	style="border:1px solid #eee;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+	<a href={href} style="text-decoration:none;color:inherit;">
+		<div
+			style="aspect-ratio:4/3;background:#f6f6f6;border-radius:12px;overflow:hidden;">
+			{
+				p.data.imagen ? (
+					<img
+						src={p.data.imagen}
+						alt={p.data.nombre}
+						style="width:100%;height:100%;object-fit:cover;"
+						loading="lazy"
+					/>
+				) : null
+			}
+		</div>
+	</a>
+
+	<div>
+		<a href={href} style="text-decoration:none;color:inherit;">
+			<div style="font-weight:800;">{p.data.nombre}</div>
+		</a>
+		<div style="color:#555;font-size:13px;margin-top:2px;">
+			{p.data.marca ?? ''}
+		</div>
+	</div>
+
+	<div
+		style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+		<div style="font-weight:900;">Gs. {formatGs(p.data.precioPublico)}</div>
+		<AddToOrderButton
+			client:load
+			slug={p.slug}
+			nombre={p.data.nombre}
+			precioPublico={p.data.precioPublico}
+			tipoVenta={p.data.tipoVenta}
+		/>
+	</div>
+</div>

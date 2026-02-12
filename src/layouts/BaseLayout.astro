@@ -1,0 +1,147 @@
+---
+import TopBar from "../components/TopBar.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+
+const {
+  title = "Mbarete Eléctrico",
+  description = "Materiales eléctricos y herramientas online en Asunción y Central.",
+  ogImage = "/img/og-default.jpg", // 1200x630 ideal
+  noindex = false,
+} = Astro.props;
+
+// ✅ Dominio: usa el configurado si existe, si no usa el de Netlify
+const configured = (import.meta.env.PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+const netlifyUrl =
+  (import.meta.env.DEPLOY_PRIME_URL ?? import.meta.env.URL ?? "").replace(/\/$/, "");
+const SITE_URL = configured || netlifyUrl;
+
+// Branding
+const siteName = import.meta.env.PUBLIC_SITE_NAME ?? "Mbarete";
+const siteDescriptor = import.meta.env.PUBLIC_SITE_DESCRIPTOR ?? "Eléctrico";
+
+// Canonical
+const pathname = Astro.url.pathname;
+const canonical = SITE_URL ? `${SITE_URL}${pathname}` : Astro.url.href;
+
+// OG imagen absoluta
+const ogImageAbs =
+  ogImage && SITE_URL && ogImage.startsWith("/")
+    ? `${SITE_URL}${ogImage}`
+    : ogImage;
+
+// Robots
+const robots = noindex
+  ? "noindex, nofollow"
+  : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+
+// JSON-LD base (sin dirección; servicio a domicilio)
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": SITE_URL ? `${SITE_URL}#organization` : undefined,
+      name: `${siteName} ${siteDescriptor}`.trim(),
+      url: SITE_URL || undefined,
+      logo: SITE_URL ? `${SITE_URL}/img/logo.png` : undefined, // opcional si existe
+    },
+    {
+      "@type": "WebSite",
+      "@id": SITE_URL ? `${SITE_URL}#website` : undefined,
+      url: SITE_URL || undefined,
+      name: `${siteName} ${siteDescriptor}`.trim(),
+      publisher: SITE_URL ? { "@id": `${SITE_URL}#organization` } : undefined,
+      inLanguage: "es-PY",
+      potentialAction: SITE_URL
+        ? {
+            "@type": "SearchAction",
+            target: `${SITE_URL}/catalogo?q={search_term_string}`,
+            "query-input": "required name=search_term_string",
+          }
+        : undefined,
+    },
+  ].filter(Boolean),
+};
+---
+
+<!doctype html>
+<html lang="es-PY">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content={`${siteName} ${siteDescriptor}`.trim()} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    {ogImageAbs ? <meta property="og:image" content={ogImageAbs} /> : null}
+    {ogImageAbs ? <meta property="og:image:alt" content={title} /> : null}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageAbs ? <meta name="twitter:image" content={ogImageAbs} /> : null}
+
+    <!-- Hreflang -->
+    <link rel="alternate" hrefLang="es-py" href={canonical} />
+
+    <!-- Favicons (en /public) -->
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- JSON-LD base -->
+    <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+
+    <!-- Base styles + container -->
+    <style>
+      :root{
+        --text:#111;
+        --muted:#666;
+        --border:#eee;
+        --bg:#fff;
+      }
+      *{ box-sizing:border-box; }
+      html,body{ height:100%; }
+      body{
+        margin:0;
+        font-family:system-ui;
+        background:var(--bg);
+        color:var(--text);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      a{ color:inherit; }
+      img{ max-width:100%; height:auto; display:block; }
+      main{ min-height: 60vh; }
+
+      .container{
+        max-width:1100px;
+        margin:0 auto;
+        padding:22px 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <TopBar />
+    <Header />
+
+    <main class="container">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

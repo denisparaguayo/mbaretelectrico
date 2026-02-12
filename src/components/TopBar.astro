@@ -1,0 +1,9 @@
+---
+const min = Number(import.meta.env.PUBLIC_FREE_SHIPPING_MIN ?? 300000);
+---
+
+<div style="background:#f6f6f6;border-bottom:1px solid #eee;font-size:14px;">
+	<div style="max-width:1100px;margin:0 auto;padding:10px 20px;color:#222;">
+		🚚 Envío gratis desde Gs. {min.toLocaleString('es-PY')} en Asunción y Central
+	</div>
+</div>

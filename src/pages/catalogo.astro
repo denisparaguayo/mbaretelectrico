@@ -1,0 +1,142 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CatalogBrowser from "../components/CatalogBrowser.tsx";
+import { getCollection } from "astro:content";
+import precios from "../data/precios.json";
+
+// 🔹 Cargar productos y categorías
+const productos = await getCollection("productos");
+const categorias = await getCollection("categorias");
+
+// 🔹 Detectar categoría desde URL
+const selectedCat = Astro.url.searchParams.get("cat") || "all";
+
+// 🔹 Categoría actual (si existe)
+const categoriaActual =
+  selectedCat !== "all"
+    ? categorias.find((c) => c.slug === selectedCat)
+    : null;
+
+// 🔹 SEO dinámico
+const pageTitle = categoriaActual?.data?.title
+  ? `${categoriaActual.data.title} | Mbarete Eléctrico`
+  : "Catálogo | Mbarete Eléctrico";
+
+const pageDescription = categoriaActual?.data?.description
+  ? categoriaActual.data.description
+  : "Catálogo de materiales eléctricos y herramientas con entrega en Asunción y Central.";
+
+// 🔹 Serializar productos y aplicar precios desde JSON
+const products = productos.map((p) => {
+  const codigo = p.data.codigoProducto;
+  const precio = precios[codigo] ?? p.data.precioPublico ?? 0;
+
+  return {
+    slug: p.slug,
+    nombre: p.data.nombre,
+    marca: p.data.marca,
+    categoria: p.data.categoria,
+    codigoProducto: codigo,
+    precioPublico: precio,
+    tipoVenta: p.data.tipoVenta,
+    descripcionCorta: p.data.descripcionCorta,
+    imagen: p.data.imagen,
+    tags: p.data.tags,
+  };
+});
+
+// 🔹 Chips categorías (deben coincidir con categoria del producto)
+const categories = [
+  { id: "iluminacion", label: "Iluminación" },
+  { id: "cables", label: "Cables" },
+  { id: "llaves-y-tomas", label: "Llaves y tomas" },
+  { id: "herramientas-manuales", label: "Herramientas manuales" },
+  { id: "herramientas-electricas", label: "Herramientas eléctricas" },
+  { id: "accesorios", label: "Accesorios" },
+];
+
+// 🔹 JSON-LD CollectionPage
+const SITE_URL =
+  (import.meta.env.PUBLIC_SITE_URL ??
+    import.meta.env.DEPLOY_PRIME_URL ??
+    import.meta.env.URL ??
+    "").replace(/\/$/, "");
+
+const canonical = SITE_URL
+  ? `${SITE_URL}${Astro.url.pathname}${Astro.url.search}`
+  : Astro.url.href;
+
+const collectionJsonLd = categoriaActual
+  ? {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: categoriaActual.data.title,
+      description: categoriaActual.data.description,
+      url: canonical,
+    }
+  : null;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+
+  {collectionJsonLd && (
+    <script type="application/ld+json">
+      {JSON.stringify(collectionJsonLd)}
+    </script>
+  )}
+
+  <style>
+    .seo-box {
+      border: 1px solid #eee;
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .seo-box h1 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .seo-box p {
+      margin: 0;
+      color: #444;
+      line-height: 1.7;
+      max-width: 800px;
+      font-size: 14px;
+    }
+
+    .page-title {
+      margin: 0 0 8px;
+    }
+
+    .page-sub {
+      margin: 0 0 16px;
+      color: #444;
+    }
+  </style>
+
+  {categoriaActual ? (
+    <section class="seo-box">
+      <h1>{categoriaActual.data.title}</h1>
+      <div set:html={categoriaActual.body} />
+    </section>
+  ) : (
+    <>
+      <h1 class="page-title">Catálogo</h1>
+      <p class="page-sub">
+        Buscá, agregá al pedido y enviá todo por WhatsApp en un solo mensaje.
+      </p>
+    </>
+  )}
+
+  <CatalogBrowser
+    client:load
+    products={products}
+    categories={categories}
+    initialCategory={selectedCat}
+  />
+
+</BaseLayout>
