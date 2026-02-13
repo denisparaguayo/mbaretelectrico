@@ -1,21 +1,27 @@
 ---
 import AddToOrderButton from './AddToOrderButton.tsx';
 import { formatGs } from '../lib/money';
+import precios from '../data/precios.json';
+
 const { p } = Astro.props;
 const href = `/p/${p.slug}`;
+
+const codigo = p.data.codigoProducto;
+const precioReal = (precios as any)[codigo] ?? p.data.precioPublico ?? 0;
+const unidad = p.data.tipoVenta === 'metro' ? 'metro' : 'unidad';
 ---
 
 <div
-	style="border:1px solid #eee;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;">
-	<a href={href} style="text-decoration:none;color:inherit;">
-		<div
-			style="aspect-ratio:4/3;background:#f6f6f6;border-radius:12px;overflow:hidden;">
+	class="flex h-full flex-col gap-3 rounded-(--r-lg) border border-(--border) bg-(--surface) p-3 sm:p-4 shadow-(--shadow)">
+	<!-- Imagen -->
+	<a href={href} class="block no-underline text-inherit">
+		<div class="aspect-[4/3] rounded-(--r-md) bg-(--muted) overflow-hidden">
 			{
 				p.data.imagen ? (
 					<img
 						src={p.data.imagen}
 						alt={p.data.nombre}
-						style="width:100%;height:100%;object-fit:cover;"
+						class="h-full w-full object-cover"
 						loading="lazy"
 					/>
 				) : null
@@ -23,24 +29,63 @@ const href = `/p/${p.slug}`;
 		</div>
 	</a>
 
-	<div>
-		<a href={href} style="text-decoration:none;color:inherit;">
-			<div style="font-weight:800;">{p.data.nombre}</div>
+	<!-- Título / marca -->
+	<div class="min-h-[44px]">
+		<a href={href} class="no-underline text-inherit">
+			<div class="font-black leading-tight text-[14px] sm:text-[15px]">
+				{p.data.nombre}
+			</div>
 		</a>
-		<div style="color:#555;font-size:13px;margin-top:2px;">
-			{p.data.marca ?? ''}
-		</div>
+
+		{
+			p.data.marca ? (
+				<div class="mt-1 text-[12.5px] font-semibold text-(--text3)">
+					{p.data.marca}
+				</div>
+			) : (
+				<div class="mt-1 text-[12.5px] text-transparent select-none">.</div>
+			)
+		}
 	</div>
 
-	<div
-		style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-		<div style="font-weight:900;">Gs. {formatGs(p.data.precioPublico)}</div>
-		<AddToOrderButton
-			client:load
-			slug={p.slug}
-			nombre={p.data.nombre}
-			precioPublico={p.data.precioPublico}
-			tipoVenta={p.data.tipoVenta}
-		/>
+	<!-- Spacer para empujar compra al fondo -->
+	<div class="flex-1"></div>
+
+	<!-- Precio + botón (precio arriba, botón abajo) -->
+	<div class="mt-auto flex flex-col gap-2">
+		{
+			precioReal > 0 ? (
+				<div class="font-black text-[15px] sm:text-[16px]">
+					Gs. {formatGs(precioReal)}
+					<span class="ml-1 text-[12px] font-bold text-(--text3)">
+						/ {unidad}
+					</span>
+				</div>
+			) : (
+				<div class="font-black text-[14px] text-(--text3)">
+					Consultar precio
+				</div>
+			)
+		}
+
+		{
+			precioReal > 0 ? (
+				<div class="w-full">
+					<AddToOrderButton
+						client:load
+						slug={p.slug}
+						nombre={p.data.nombre}
+						precioPublico={precioReal}
+						tipoVenta={p.data.tipoVenta}
+					/>
+				</div>
+			) : (
+				<a
+					href="/pedido"
+					class="inline-flex w-full items-center justify-center rounded-(--r-md) border border-(--border) bg-(--surface) px-3 py-2 text-[13px] font-black text-(--text)">
+					Consultar
+				</a>
+			)
+		}
 	</div>
 </div>

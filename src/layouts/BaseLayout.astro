@@ -1,147 +1,82 @@
 ---
-import TopBar from "../components/TopBar.astro";
+import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-
 
 const {
   title = "Mbarete Eléctrico",
   description = "Materiales eléctricos y herramientas online en Asunción y Central.",
-  ogImage = "/img/og-default.jpg", // 1200x630 ideal
+  canonical,
+  ogImage = "/img/og-default.jpg",
   noindex = false,
 } = Astro.props;
 
-// ✅ Dominio: usa el configurado si existe, si no usa el de Netlify
-const configured = (import.meta.env.PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
-const netlifyUrl =
-  (import.meta.env.DEPLOY_PRIME_URL ?? import.meta.env.URL ?? "").replace(/\/$/, "");
-const SITE_URL = configured || netlifyUrl;
-
-// Branding
 const siteName = import.meta.env.PUBLIC_SITE_NAME ?? "Mbarete";
 const siteDescriptor = import.meta.env.PUBLIC_SITE_DESCRIPTOR ?? "Eléctrico";
+const defaultBase =
+  import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin; // si no tenés dominio, usa el origin actual
 
-// Canonical
-const pathname = Astro.url.pathname;
-const canonical = SITE_URL ? `${SITE_URL}${pathname}` : Astro.url.href;
+const canonicalUrl = canonical
+  ? new URL(canonical, defaultBase).toString()
+  : new URL(Astro.url.pathname, defaultBase).toString();
 
-// OG imagen absoluta
-const ogImageAbs =
-  ogImage && SITE_URL && ogImage.startsWith("/")
-    ? `${SITE_URL}${ogImage}`
-    : ogImage;
+const ogUrl = canonicalUrl;
+const ogTitle = title;
+const ogDesc = description;
 
-// Robots
-const robots = noindex
-  ? "noindex, nofollow"
-  : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
-
-// JSON-LD base (sin dirección; servicio a domicilio)
-const jsonLd = {
+// JSON-LD básico (Organization)
+const jsonLdOrg = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": SITE_URL ? `${SITE_URL}#organization` : undefined,
-      name: `${siteName} ${siteDescriptor}`.trim(),
-      url: SITE_URL || undefined,
-      logo: SITE_URL ? `${SITE_URL}/img/logo.png` : undefined, // opcional si existe
-    },
-    {
-      "@type": "WebSite",
-      "@id": SITE_URL ? `${SITE_URL}#website` : undefined,
-      url: SITE_URL || undefined,
-      name: `${siteName} ${siteDescriptor}`.trim(),
-      publisher: SITE_URL ? { "@id": `${SITE_URL}#organization` } : undefined,
-      inLanguage: "es-PY",
-      potentialAction: SITE_URL
-        ? {
-            "@type": "SearchAction",
-            target: `${SITE_URL}/catalogo?q={search_term_string}`,
-            "query-input": "required name=search_term_string",
-          }
-        : undefined,
-    },
-  ].filter(Boolean),
+  "@type": "Organization",
+  name: `${siteName} ${siteDescriptor}`.trim(),
+  url: defaultBase,
+  logo: new URL("/img/logo2.png", defaultBase).toString(),
+  sameAs: [],
 };
 ---
-
 <!doctype html>
-<html lang="es-PY">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta name="robots" content={robots} />
-    <meta name="theme-color" content="#ffffff" />
+    <title>{ogTitle}</title>
+    <meta name="description" content={ogDesc} />
 
-    <!-- Canonical -->
-    <link rel="canonical" href={canonical} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    {noindex ? <meta name="robots" content="noindex,nofollow" /> : <meta name="robots" content="index,follow" />}
 
     <!-- Open Graph -->
-    <meta property="og:site_name" content={`${siteName} ${siteDescriptor}`.trim()} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonical} />
-    {ogImageAbs ? <meta property="og:image" content={ogImageAbs} /> : null}
-    {ogImageAbs ? <meta property="og:image:alt" content={title} /> : null}
+    <meta property="og:site_name" content={`${siteName} ${siteDescriptor}`.trim()} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDesc} />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:image" content={new URL(ogImage, defaultBase).toString()} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    {ogImageAbs ? <meta name="twitter:image" content={ogImageAbs} /> : null}
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDesc} />
+    <meta name="twitter:image" content={new URL(ogImage, defaultBase).toString()} />
 
-    <!-- Hreflang -->
-    <link rel="alternate" hrefLang="es-py" href={canonical} />
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+      {JSON.stringify(jsonLdOrg)}
+    </script>
 
-    <!-- Favicons (en /public) -->
+    <!-- Favicons (si tenés) -->
     <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-    <!-- JSON-LD base -->
-    <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-
-    <!-- Base styles + container -->
-    <style>
-      :root{
-        --text:#111;
-        --muted:#666;
-        --border:#eee;
-        --bg:#fff;
-      }
-      *{ box-sizing:border-box; }
-      html,body{ height:100%; }
-      body{
-        margin:0;
-        font-family:system-ui;
-        background:var(--bg);
-        color:var(--text);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-      a{ color:inherit; }
-      img{ max-width:100%; height:auto; display:block; }
-      main{ min-height: 60vh; }
-
-      .container{
-        max-width:1100px;
-        margin:0 auto;
-        padding:22px 20px;
-      }
-    </style>
   </head>
 
-  <body>
-    <TopBar />
+  <body class="bg-[var(--bg)] text-[var(--text)]">
     <Header />
 
-    <main class="container">
+    <main class="mx-auto w-full max-w-[1100px] px-4 sm:px-6 py-6">
       <slot />
     </main>
+
     <Footer />
   </body>
 </html>

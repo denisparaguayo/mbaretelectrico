@@ -42,7 +42,7 @@ export default function OrderCountBadge() {
 				height: 22,
 				padding: '0 6px',
 				borderRadius: 999,
-				background: '#111',
+				background: 'var(--logo-orange)',
 				color: '#fff',
 				fontSize: 12,
 				fontWeight: 800,

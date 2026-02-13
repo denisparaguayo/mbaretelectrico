@@ -26,10 +26,21 @@ const pageDescription = categoriaActual?.data?.description
   ? categoriaActual.data.description
   : "Catálogo de materiales eléctricos y herramientas con entrega en Asunción y Central.";
 
+// 🔹 Canonical (Netlify o dominio)
+const SITE_URL =
+  (import.meta.env.PUBLIC_SITE_URL ??
+    import.meta.env.DEPLOY_PRIME_URL ??
+    import.meta.env.URL ??
+    "").replace(/\/$/, "");
+
+const canonical = SITE_URL
+  ? `${SITE_URL}${Astro.url.pathname}${Astro.url.search}`
+  : Astro.url.href;
+
 // 🔹 Serializar productos y aplicar precios desde JSON
 const products = productos.map((p) => {
   const codigo = p.data.codigoProducto;
-  const precio = precios[codigo] ?? p.data.precioPublico ?? 0;
+  const precio = (precios as any)[codigo] ?? p.data.precioPublico ?? 0;
 
   return {
     slug: p.slug,
@@ -45,8 +56,9 @@ const products = productos.map((p) => {
   };
 });
 
-// 🔹 Chips categorías (deben coincidir con categoria del producto)
+// 🔹 Chips categorías (ids deben coincidir con categoria del producto)
 const categories = [
+  { id: "all", label: "Todos" },
   { id: "iluminacion", label: "Iluminación" },
   { id: "cables", label: "Cables" },
   { id: "llaves-y-tomas", label: "Llaves y tomas" },
@@ -55,17 +67,7 @@ const categories = [
   { id: "accesorios", label: "Accesorios" },
 ];
 
-// 🔹 JSON-LD CollectionPage
-const SITE_URL =
-  (import.meta.env.PUBLIC_SITE_URL ??
-    import.meta.env.DEPLOY_PRIME_URL ??
-    import.meta.env.URL ??
-    "").replace(/\/$/, "");
-
-const canonical = SITE_URL
-  ? `${SITE_URL}${Astro.url.pathname}${Astro.url.search}`
-  : Astro.url.href;
-
+// 🔹 JSON-LD CollectionPage (solo si hay categoría)
 const collectionJsonLd = categoriaActual
   ? {
       "@context": "https://schema.org",
@@ -74,69 +76,77 @@ const collectionJsonLd = categoriaActual
       description: categoriaActual.data.description,
       url: canonical,
     }
-  : null;
+  : {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Catálogo | Mbarete Eléctrico",
+      description: pageDescription,
+      url: canonical,
+    };
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <script type="application/ld+json">
+    {JSON.stringify(collectionJsonLd)}
+  </script>
 
-  {collectionJsonLd && (
-    <script type="application/ld+json">
-      {JSON.stringify(collectionJsonLd)}
-    </script>
-  )}
-
-  <style>
-    .seo-box {
-      border: 1px solid #eee;
-      background: #fff;
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-
-    .seo-box h1 {
-      margin: 0 0 10px;
-      font-size: 22px;
-      line-height: 1.2;
-    }
-
-    .seo-box p {
-      margin: 0;
-      color: #444;
-      line-height: 1.7;
-      max-width: 800px;
-      font-size: 14px;
-    }
-
-    .page-title {
-      margin: 0 0 8px;
-    }
-
-    .page-sub {
-      margin: 0 0 16px;
-      color: #444;
-    }
-  </style>
-
+  <!-- Header de página -->
   {categoriaActual ? (
-    <section class="seo-box">
-      <h1>{categoriaActual.data.title}</h1>
-      <div set:html={categoriaActual.body} />
+    <section class="mb-5 rounded-(--r-xl) border border-(--border) bg-(--surface) p-5 sm:p-6 shadow-(--shadow)">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 class="m-0 text-2xl sm:text-3xl font-black tracking-tight text-(--text)">
+            {categoriaActual.data.title}
+          </h1>
+          <p class="mt-2 text-[14px] sm:text-[15px] leading-relaxed text-(--text2) max-w-[820px]">
+            {categoriaActual.data.description}
+          </p>
+        </div>
+
+        <a
+          href="/pedido"
+          class="inline-flex items-center justify-center rounded-(--r-md) bg-(--logo-orange) text-white px-4 py-2 text-[13px] font-black shadow-sm transition hover:brightness-95 active:scale-[0.98]"
+        >
+          Mi pedido
+        </a>
+      </div>
+
+      <!-- contenido SEO largo (MD) -->
+      <div class="prose prose-sm sm:prose-base mt-4 max-w-none prose-headings:font-black prose-p:text-(--text2)">
+        <div set:html={categoriaActual.body} />
+      </div>
     </section>
   ) : (
-    <>
-      <h1 class="page-title">Catálogo</h1>
-      <p class="page-sub">
-        Buscá, agregá al pedido y enviá todo por WhatsApp en un solo mensaje.
-      </p>
-    </>
+    <section class="mb-5 rounded-(--r-xl) border border-(--border) bg-(--surface) p-5 sm:p-6 shadow-(--shadow)">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 class="m-0 text-2xl sm:text-3xl font-black tracking-tight text-(--text)">
+            Catálogo
+          </h1>
+          <p class="mt-2 text-[14px] sm:text-[15px] leading-relaxed text-(--text2) max-w-[820px]">
+            Buscá, agregá al pedido y enviá todo por WhatsApp en un solo mensaje.
+          </p>
+        </div>
+
+        <div class="flex gap-2">
+          <a
+            href="/pedido"
+            class="inline-flex items-center justify-center rounded-(--r-md) bg-(--logo-orange) text-white px-4 py-2 text-[13px] font-black shadow-sm transition hover:brightness-95 active:scale-[0.98]"
+          >
+            Mi pedido
+          </a>
+        </div>
+      </div>
+
+      
+    </section>
   )}
 
+  <!-- Browser -->
   <CatalogBrowser
     client:load
     products={products}
     categories={categories}
     initialCategory={selectedCat}
   />
-
 </BaseLayout>

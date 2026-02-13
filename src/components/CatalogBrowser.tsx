@@ -18,7 +18,7 @@ type Product = {
 type Props = {
 	products: Product[];
 	categories: { id: string; label: string }[];
-	initialCategory?: string; // ✅ para arrancar con ?cat=
+	initialCategory?: string;
 };
 
 function normalize(s: string) {
@@ -40,22 +40,18 @@ function Chip({
 }) {
 	return (
 		<button
-			onClick={onClick}
 			type="button"
-			style={{
-				padding: '10px 12px',
-				borderRadius: 999,
-				border: '1px solid',
-				borderColor: active ? '#111' : '#ddd',
-				background: active ? '#111' : '#fff',
-				color: active ? '#fff' : '#111',
-				fontWeight: 800,
-				fontSize: 13,
-				cursor: 'pointer',
-				lineHeight: 1,
-				transition: 'transform .12s ease, box-shadow .12s ease',
-			}}
-			aria-pressed={active}>
+			onClick={onClick}
+			className={[
+				'shrink-0',
+				'rounded-full px-3 py-2',
+				'text-[13px] font-extrabold leading-none',
+				'border transition',
+				'active:scale-[0.98]',
+				active
+					? 'bg-(--brand) text-(--brand-contrast) border-(--brand)'
+					: 'bg-(--surface) text-(--text) border-(--border) hover:bg-(--muted)',
+			].join(' ')}>
 			{label}
 		</button>
 	);
@@ -95,28 +91,15 @@ export default function CatalogBrowser({
 	const hasFilters = q.trim().length > 0 || cat !== 'all';
 
 	return (
-		<div style={{ display: 'grid', gap: 14 }}>
+		<div className="grid gap-4">
 			{/* Buscador */}
-			<div
-				style={{
-					display: 'flex',
-					gap: 10,
-					flexWrap: 'wrap',
-					alignItems: 'center',
-				}}>
-				<div style={{ flex: '1 1 340px' }}>
+			<div className="flex flex-wrap items-center gap-3">
+				<div className="flex-1 min-w-[240px]">
 					<input
 						value={q}
 						onChange={(e) => setQ(e.target.value)}
-						placeholder="Buscar: luz led, panel, cable 2.5, llave térmica…"
-						style={{
-							width: '100%',
-							padding: '12px 14px',
-							borderRadius: 14,
-							border: '1px solid #ddd',
-							outline: 'none',
-							fontSize: 14,
-						}}
+						placeholder="Buscar: luz led, panel, cable 2.5, térmica…"
+						className="w-full rounded-(--r-lg) border border-(--border) bg-(--surface) px-4 py-3 text-[14px] outline-none transition focus:border-(--logo-blue) focus:ring-4 focus:ring-(--ring)"
 					/>
 				</div>
 
@@ -127,158 +110,112 @@ export default function CatalogBrowser({
 							setQ('');
 							setCat('all');
 						}}
-						style={{
-							padding: '12px 14px',
-							borderRadius: 14,
-							border: '1px solid #ddd',
-							background: '#fff',
-							cursor: 'pointer',
-							fontWeight: 800,
-							fontSize: 13,
-						}}>
+						className="rounded-(--r-lg) border border-(--border) bg-(--surface) px-4 py-3 text-[13px] font-black transition hover:bg-(--muted)">
 						Limpiar
 					</button>
 				)}
 			</div>
 
-			{/* Chips */}
-			<div
-				style={{
-					display: 'flex',
-					gap: 8,
-					flexWrap: 'wrap',
-					alignItems: 'center',
-				}}>
-				<Chip
-					active={cat === 'all'}
-					label="Todo"
-					onClick={() => setCat('all')}
-				/>
-				{categories.map((c) => (
+			{/* Chips con scroll SOLO interno (no rompe página) */}
+			<div className="w-full overflow-x-auto">
+				<div className="flex w-max gap-2 py-1 pr-2">
 					<Chip
-						key={c.id}
-						active={cat === c.id}
-						label={c.label}
-						onClick={() => setCat(c.id)}
+						active={cat === 'all'}
+						label="Todo"
+						onClick={() => setCat('all')}
 					/>
-				))}
+					{categories
+						.filter((c) => c.id !== 'all')
+						.map((c) => (
+							<Chip
+								key={c.id}
+								active={cat === c.id}
+								label={c.label}
+								onClick={() => setCat(c.id)}
+							/>
+						))}
+				</div>
 			</div>
 
 			{/* Resumen */}
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					color: '#555',
-					fontSize: 13,
-					gap: 10,
-					flexWrap: 'wrap',
-				}}>
+			<div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-(--text2)">
 				<span>
-					<strong style={{ color: '#111' }}>{filtered.length}</strong>{' '}
+					<span className="font-black text-(--text)">{filtered.length}</span>{' '}
 					resultado(s)
 				</span>
 				<span>Agregá al pedido y enviá todo por WhatsApp</span>
 			</div>
 
-			{/* Grid */}
-			<div
-				style={{
-					display: 'grid',
-					gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-					gap: 12,
-				}}>
-				{filtered.map((p) => (
-					<div
-						key={p.slug}
-						style={{
-							border: '1px solid #eee',
-							borderRadius: 16,
-							padding: 14,
-							display: 'flex',
-							flexDirection: 'column',
-							gap: 10,
-							background: '#fff',
-							boxShadow: '0 10px 25px rgba(0,0,0,0.03)',
-						}}>
-						<a
-							href={`/p/${p.slug}`}
-							style={{ textDecoration: 'none', color: 'inherit' }}
-							aria-label={`Ver ${p.nombre}`}>
-							<div
-								style={{
-									aspectRatio: '4/3',
-									background: '#f6f6f6',
-									borderRadius: 12,
-									overflow: 'hidden',
-									border: '1px solid #efefef',
-								}}>
-								{p.imagen ? (
-									<img
-										src={p.imagen}
-										alt={p.nombre}
-										style={{
-											width: '100%',
-											height: '100%',
-											objectFit: 'cover',
-										}}
-										loading="lazy"
-									/>
-								) : null}
-							</div>
-						</a>
+			{/* GRID RESPONSIVE CORRECTO */}
+			<div className="mt-2 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+				{filtered.map((p) => {
+					const unidad = p.tipoVenta === 'metro' ? 'm' : 'u';
 
-						<div>
-							<a
-								href={`/p/${p.slug}`}
-								style={{ textDecoration: 'none', color: 'inherit' }}>
-								<div style={{ fontWeight: 900, lineHeight: 1.2 }}>
-									{p.nombre}
+					return (
+						<div
+							key={p.slug}
+							className="min-w-0 flex h-full flex-col gap-3 rounded-(--r-lg) border border-(--border) bg-(--surface) p-3 sm:p-4 shadow-(--shadow)">
+							{/* Imagen */}
+							<a href={`/p/${p.slug}`} className="block">
+								<div className="aspect-[4/3] rounded-(--r-md) bg-(--muted) overflow-hidden border border-(--border)">
+									{p.imagen ? (
+										<img
+											src={p.imagen}
+											alt={p.nombre}
+											className="h-full w-full object-cover"
+											loading="lazy"
+										/>
+									) : null}
 								</div>
 							</a>
-							<div style={{ color: '#555', fontSize: 13, marginTop: 4 }}>
-								{p.marca ? p.marca : ' '}
-							</div>
-						</div>
 
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-								gap: 10,
-								marginTop: 'auto',
-							}}>
-							<div style={{ fontWeight: 900 }}>
-								Gs. {formatGs(p.precioPublico)}
-								<span style={{ fontSize: 12, color: '#666', fontWeight: 700 }}>
-									{' '}
-									/{p.tipoVenta === 'metro' ? 'metro' : 'unidad'}
-								</span>
+							{/* Título */}
+							<div className="min-h-[46px]">
+								<a href={`/p/${p.slug}`} className="block">
+									<div className="font-black leading-tight text-[14px] sm:text-[15px] text-(--text)">
+										{p.nombre}
+									</div>
+								</a>
+								<div className="mt-1 text-[12.5px] font-semibold text-(--text3)">
+									{p.marca || (
+										<span className="text-transparent select-none">.</span>
+									)}
+								</div>
 							</div>
 
-							<AddToOrderButton
-								slug={p.slug}
-								nombre={p.nombre}
-								precioPublico={p.precioPublico}
-								tipoVenta={p.tipoVenta}
-							/>
+							<div className="flex-1" />
+
+							{/* Precio + botón */}
+							<div className="mt-auto flex flex-col gap-2">
+								<div className="font-black text-[15px] sm:text-[16px] text-(--text)">
+									Gs. {formatGs(p.precioPublico)}
+									<span className="ml-1 text-[12px] font-bold text-(--text3)">
+										/ {unidad}
+									</span>
+								</div>
+
+								<AddToOrderButton
+									slug={p.slug}
+									nombre={p.nombre}
+									precioPublico={p.precioPublico}
+									tipoVenta={p.tipoVenta}
+								/>
+							</div>
 						</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
 
 			{/* Sin resultados */}
 			{filtered.length === 0 && (
-				<div
-					style={{
-						padding: 16,
-						border: '1px solid #eee',
-						borderRadius: 14,
-						background: '#fff',
-					}}>
-					No encontramos resultados. Probá con otra palabra (ej: “led”, “cable”,
-					“térmica”).
+				<div className="rounded-(--r-lg) border border-(--border) bg-(--surface) p-4 text-(--text2)">
+					<div className="font-black text-(--text)">
+						No encontramos resultados.
+					</div>
+					<div className="mt-1 text-[13px]">
+						Probá con otra palabra (ej: <strong>led</strong>,{' '}
+						<strong>cable</strong>, <strong>térmica</strong>).
+					</div>
 				</div>
 			)}
 		</div>

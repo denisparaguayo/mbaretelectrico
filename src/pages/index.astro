@@ -1,62 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import Hero from '../components/home/Hero.astro';
 import ProductCard from '../components/ProductCard.astro';
+import { getCollection } from 'astro:content';
 
 const productos = await getCollection('productos');
 const destacados = productos.filter((p) => p.data.destacado).slice(0, 8);
 ---
 
-<BaseLayout title="Mbarete Eléctrico | Asunción y Central">
-	<section
-		style="
-    border-radius:10px;
-    overflow:hidden;
-    background-image:url('/img/og-default.jpg');
-    background-size:cover;
-    background-position:center;
-    min-height:320px;
-    position:relative;
-  ">
-		<div
-			style="
-      position:absolute; inset:0;
-      background:rgba(53, 51, 51, 0.7);
-    ">
+<BaseLayout
+	title="Mbarete Eléctrico"
+	description="Materiales eléctricos y herramientas online en Asunción y Central.">
+	<Hero />
+
+	<section class="mt-8">
+		<div class="flex items-end justify-between gap-3">
+			<h2 class="text-xl font-black">Destacados</h2>
+			<a
+				class="text-sm font-bold text-[var(--text2)] hover:underline"
+				href="/catalogo">
+				Ver todo →
+			</a>
 		</div>
 
-		<div style="position:relative; padding:28px; max-width:740px; color:#fff;">
-			<h1 style="margin:0; font-size:34px; line-height:1.1;">
-				Materiales eléctricos y herramientas online en Asunción y Central.
-			</h1>
-			<p
-				style="margin:12px 0 18px; color:#333; font-size:16px; line-height:1.5;">
-				Comprá fácil, recibí en tu casa y pagá como prefieras.
-			</p>
-			<div style="display:flex; gap:10px; flex-wrap:wrap;">
-				<a
-					href="/catalogo"
-					style="padding:12px 14px;border-radius:12px;background:#111;color:#fff;text-decoration:none;font-weight:800;">
-					Ver catálogo
-				</a>
-				<a
-					href="/pedido"
-					style="padding:12px 14px;border-radius:12px;border:1px solid #ffffff;color:#ffffff;text-decoration:none;font-weight:800;">
-					Ver mi pedido
-				</a>
-			</div>
-
-			<div style="margin-top:14px;color:#ffffff;font-size:13px;">
-				Entrega 24–48h • Envío gratis desde Gs. 300.000 • Pago en puerta
-				disponible
-			</div>
-		</div>
-	</section>
-
-	<section style="padding:18px 0;">
-		<h2 style="margin:0 0 12px;">Lo más elegido para el hogar</h2>
 		<div
-			style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
+			class="mt-4 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
 			{destacados.map((p) => <ProductCard p={p} />)}
 		</div>
 	</section>

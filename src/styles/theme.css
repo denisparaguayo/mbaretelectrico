@@ -1,0 +1,31 @@
+:root {
+	/* Colores base */
+	--bg: #ffffff;
+	--surface: #ffffff;
+	--muted: #f6f6f6;
+	--logo-blue: #0052be;
+	--logo-orange: #ff6709;
+
+	--text: #111111;
+	--text2: #444444;
+	--text3: #666666;
+
+	/* Marca (podés cambiar acá y cambia todo) */
+	--brand: #111111;
+	--brand-contrast: #ffffff;
+
+	/* Acento “ferretería” futuro (no eléctrico puro) */
+	--accent: #2a6d4d; /* verde petróleo */
+	--accent-contrast: #ffffff;
+
+	/* Bordes y sombras */
+	--border: #eeeeee;
+	--ring: rgba(17, 17, 17, 0.15);
+	--shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+
+	/* Radios */
+	--r-sm: 10px;
+	--r-md: 12px;
+	--r-lg: 16px;
+	--r-xl: 20px;
+}
